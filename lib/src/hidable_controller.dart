@@ -51,18 +51,25 @@ class HidableController {
   double sizeFactor() => 1.0 - (li / size);
 
   /// Listener is the main "extenssion" method for the [ScrollController],
-  /// which calculates the position of scroll and decides wheter it should collapse or 
+  /// which calculates the position of scroll and decides wheter it should collapse or
   /// show-up the static located widget.
   ///
-  /// The caluclation data will be emited to the [sizeNotifier]. Where 0 to 1 is the 
+  /// The caluclation data will be emited to the [sizeNotifier]. Where 0 to 1 is the
   /// static-located-widget appearing status. (0 = closed) and (1 = opened).
   void listener() {
+    if(scrollController.position.pixels <=0){
+      sizeNotifier.value = 1.0;
+      return;
+    }
+    if(scrollController.position.pixels <=48){
+      if(sizeNotifier.value==1) return;
+      sizeNotifier.value = 1- scrollController.position.pixels/48;
+      return;
+    }
     final p = scrollController.position;
-
     // Set "li" by pixels and last offset.
     li = (li + p.pixels - lastOffset).clamp(0.0, size);
     lastOffset = p.pixels;
-
     // If scrolled down, size-notifiers value should be zero.
     // Can be imagined as [zero = false] | [one = true].
     if (p.axisDirection == AxisDirection.down && p.extentAfter == 0.0) {
